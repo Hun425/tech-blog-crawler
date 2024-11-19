@@ -1,6 +1,7 @@
 package techblog.domain;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -10,6 +11,7 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Document(indexName = "blog-posts")
@@ -34,7 +36,7 @@ public class BlogPost {
 
     @Field(type = FieldType.Keyword)
     @ElementCollection
-    private List<String> tags;
+    private Set<String> tags;
 
     private String url;
 
@@ -46,4 +48,15 @@ public class BlogPost {
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    @Builder
+    public BlogPost(String title, String content, String company, String url,
+                    LocalDateTime publishDate, Set<String> tags) {
+        this.title = title;
+        this.content = content;
+        this.company = company;
+        this.url = url;
+        this.publishDate = publishDate;
+        this.tags = tags;
+    }
 }
