@@ -40,6 +40,9 @@ dependencies {
 	implementation 'org.jsoup:jsoup:1.15.3'
 	implementation 'com.rometools:rome:2.1.0'  // RSS 피드 파싱
 
+	implementation 'org.seleniumhq.selenium:selenium-java:4.16.1'
+	implementation 'io.github.bonigarcia:webdrivermanager:5.6.2' // WebDriver 자동 관리
+
 	// Swagger
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
 
