@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import techblog.dto.request.BlogSearchRequest;
 import techblog.dto.response.BlogPostResponse;
+import techblog.dto.response.TrendResponse;
 import techblog.service.BlogService;
 
 import java.util.List;
@@ -24,7 +26,7 @@ public class BlogController {
 
     private final BlogService blogService;
 
-    @Operation(summary = "Get recent blog posts")
+    @Operation(summary = "최근 포스트를 가져옵니다")
     @GetMapping("/recent")
     public ResponseEntity<List<BlogPostResponse>> getRecentPosts(
             @Parameter(description = "Number of posts to return")
@@ -32,7 +34,7 @@ public class BlogController {
         return ResponseEntity.ok(blogService.getRecentPosts(size));
     }
 
-    @Operation(summary = "Search blog posts")
+    @Operation(summary = "블로그 포스트 중에서 검색")
     @GetMapping("/search")
     public ResponseEntity<Page<BlogPostResponse>> searchPosts(
             @Parameter(description = "Search keyword")
@@ -43,13 +45,23 @@ public class BlogController {
             @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "Page size")
             @RequestParam(defaultValue = "20") int size) {
-        return ResponseEntity.ok(blogService.searchPosts(keyword, companies,
-                PageRequest.of(page, size)));
+
+        BlogSearchRequest searchRequest = new BlogSearchRequest(
+                keyword,
+                companies,
+                null,  // tags
+                null,  // startDate
+                null,  // endDate
+                page,
+                size
+        );
+
+        return ResponseEntity.ok(blogService.searchPosts(searchRequest, PageRequest.of(page, size)));
     }
 
-    @Operation(summary = "Get trending keywords")
+    @Operation(summary = "최근 트렌드 키워드 검색")
     @GetMapping("/trends/keywords")
-    public ResponseEntity<List<TrendKeyword>> getTrendingKeywords() {
-        return ResponseEntity.ok(blogService.getTrendingKeywords());
+    public ResponseEntity<List<TrendResponse.KeywordTrend>> getTrendingKeywords() {
+        return ResponseEntity.ok(blogService.getWeeklyTrends().keywords());
     }
 }

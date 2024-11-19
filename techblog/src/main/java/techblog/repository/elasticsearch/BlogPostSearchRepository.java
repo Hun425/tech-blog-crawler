@@ -1,4 +1,4 @@
-package techblog.repository;
+package techblog.repository.elasticsearch;
 
 import org.springframework.data.elasticsearch.annotations.Query;
 import org.springframework.data.elasticsearch.core.SearchHits;

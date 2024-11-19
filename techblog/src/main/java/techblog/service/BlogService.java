@@ -25,25 +25,23 @@ import techblog.domain.BlogPost;
 import techblog.dto.request.BlogSearchRequest;
 import techblog.dto.response.BlogPostResponse;
 import techblog.dto.response.TrendResponse;
-import techblog.repository.BlogPostRepository;
+import techblog.repository.jpa.BlogPostJpaRepository;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 // 검색 쿼리 관련 추가 import
-import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.json.JsonData;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class BlogService {
-    private final BlogPostRepository blogPostRepository;
+    private final BlogPostJpaRepository blogPostRepository;
     private final ElasticsearchClient elasticsearchClient;
     private final RedisTemplate<String, String> redisTemplate;
 

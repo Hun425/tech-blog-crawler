@@ -1,19 +1,21 @@
-package techblog.repository;
+package techblog.repository.jpa;
 
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.elasticsearch.annotations.Query;
+import org.springframework.data.domain.Pageable;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import techblog.domain.BlogPost;
 
-import java.awt.print.Pageable;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
 @Repository
-public interface BlogPostRepository extends JpaRepository<BlogPost, String> {
+public interface BlogPostJpaRepository extends JpaRepository<BlogPost, String> {
     // 최근 게시물 조회
     List<BlogPost> findTop10ByOrderByPublishDateDesc();
 

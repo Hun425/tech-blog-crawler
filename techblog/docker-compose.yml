@@ -8,12 +8,12 @@ services:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: techblog
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.8.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.16.0
     environment:
       - node.name=single-node
       - cluster.name=docker-cluster

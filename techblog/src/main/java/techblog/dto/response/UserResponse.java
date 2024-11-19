@@ -1,5 +1,7 @@
 package techblog.dto.response;
 
+import techblog.domain.User;
+
 import java.time.LocalDateTime;
 import java.util.Set;
 

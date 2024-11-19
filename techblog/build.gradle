@@ -31,8 +31,10 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
 
 
-	// Redis
+
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'io.lettuce:lettuce-core'
+
 
 	// Crawler
 	implementation 'org.jsoup:jsoup:1.15.3'
