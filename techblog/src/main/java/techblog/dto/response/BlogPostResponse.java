@@ -4,14 +4,15 @@ import techblog.domain.BlogPost;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 public record BlogPostResponse(
-        String id,
+        Long id,
         String title,
         String content,
         String company,
         LocalDateTime publishDate,
-        List<String> tags,
+        Set<String> tags,
         String url,
         Long viewCount,
         boolean isBookmarked

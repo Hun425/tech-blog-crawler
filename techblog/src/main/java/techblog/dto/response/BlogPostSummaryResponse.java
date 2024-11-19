@@ -5,7 +5,7 @@ import techblog.domain.BlogPost;
 import java.time.LocalDateTime;
 
 public record BlogPostSummaryResponse(
-        String id,
+        Long id,
         String title,
         String company,
         LocalDateTime publishDate

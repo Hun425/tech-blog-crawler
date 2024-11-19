@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import techblog.domain.BlogPost;
 
@@ -25,25 +26,46 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Component
-@RequiredArgsConstructor
 @Slf4j
 public abstract class RssFeedCrawler implements BlogCrawler {
 
     private final SyndFeedInput feedInput;
-
+    private static final int MAX_RETRIES = 1;
     protected abstract String getFeedUrl();
+
+    @Autowired  // 생성자 주입을 위한 어노테이션 추가
+    protected RssFeedCrawler(SyndFeedInput feedInput) {
+        this.feedInput = feedInput;
+    }
 
     @Override
     public List<BlogPost> crawl() {
         try {
             URL feedUrl = new URL(getFeedUrl());
-            try (XmlReader reader = new XmlReader(feedUrl)) {
-                SyndFeed feed = feedInput.build(reader);
-                return feed.getEntries().stream()
-                        .map(this::convertToPost)
-                        .filter(Objects::nonNull)
-                        .collect(Collectors.toList());
+            List<BlogPost> posts = new ArrayList<>();
+
+            for (int i = 0; i < MAX_RETRIES; i++) {
+                try (XmlReader reader = new XmlReader(feedUrl)) {
+                    SyndFeed feed = feedInput.build(reader);
+                    log.info("{} - 총 게시글 수: {}", getCompanyName(), feed.getEntries().size());
+
+                    posts = feed.getEntries().stream()
+                            .map(this::convertToPost)
+                            .filter(Objects::nonNull)
+                            .collect(Collectors.toList());
+
+                    break;  // 성공하면 루프 종료
+                } catch (Exception e) {
+                    if (i == MAX_RETRIES - 1) {
+                        throw e;  // 마지막 시도에서 실패하면 예외 던짐
+                    }
+                    log.warn("{}번째 시도 실패, 재시도 중...", i + 1);
+                    Thread.sleep(1000);  // 1초 대기 후 재시도
+                }
             }
+
+            log.info("{} - 변환된 게시글 수: {}", getCompanyName(), posts.size());
+            return posts;
         } catch (Exception e) {
             log.error("크롤링 중 오류 발생 - {}: {}", getCompanyName(), e.getMessage(), e);
             return Collections.emptyList();
