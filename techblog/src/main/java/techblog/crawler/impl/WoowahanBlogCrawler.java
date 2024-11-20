@@ -79,10 +79,8 @@ public class WoowahanBlogCrawler extends WebCrawler {
             driver.get(getBaseUrl());
             WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
 
-            // 포스트 목록이 로드될 때까지 대기
             wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".post-list")));
 
-            // 모든 포스트 정보를 한번에 수집
             List<Map<String, String>> postInfos = new ArrayList<>();
             for (WebElement element : driver.findElements(By.cssSelector(".post-item:not(.firstpaint)"))) {
                 Map<String, String> info = new HashMap<>();
@@ -92,15 +90,19 @@ public class WoowahanBlogCrawler extends WebCrawler {
                 postInfos.add(info);
             }
 
-            // 각 포스트 상세 페이지 방문
             for (Map<String, String> info : postInfos) {
                 try {
                     driver.get(info.get("url"));
-                    wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.content")));
+                    // 수정된 선택자: .post-entry 또는 .content
+                    wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".content")));
+
+                    // 전체 본문 내용 추출
+                    WebElement contentElement = driver.findElement(By.cssSelector(".content"));
+                    String content = extractCleanContent(contentElement);
 
                     BlogPost post = BlogPost.builder()
                             .title(info.get("title"))
-                            .content(driver.findElement(By.cssSelector("div.content")).getAttribute("innerHTML"))
+                            .content(content)
                             .company(getCompanyName())
                             .url(info.get("url"))
                             .publishDate(parseDate(info.get("date")))
@@ -108,9 +110,11 @@ public class WoowahanBlogCrawler extends WebCrawler {
                             .build();
 
                     allPosts.add(post);
-                    Thread.sleep(1000); // 요청 간격
+                    Thread.sleep(1000);
+
+                    log.info("포스트 크롤링 완료: {}", info.get("title"));  // 로그 추가
                 } catch (Exception e) {
-                    log.error("포스트 크롤링 중 오류: {}", e.getMessage());
+                    log.error("포스트 크롤링 중 오류 - URL: {}, 오류: {}", info.get("url"), e.getMessage());
                 }
             }
         } catch (Exception e) {
@@ -119,6 +123,36 @@ public class WoowahanBlogCrawler extends WebCrawler {
 
         return allPosts;
     }
+
+    private String extractCleanContent(WebElement contentElement) {
+        try {
+            String htmlContent = contentElement.getAttribute("innerHTML");
+            Document doc = Jsoup.parse(htmlContent);
+
+            // 불필요한 요소 제거
+            doc.select("script, style, iframe, .navigation, .share-wrap, .comments").remove();
+
+            StringBuilder cleanContent = new StringBuilder();
+
+            // 본문의 모든 텍스트 노드와 코드 블록을 순회하며 추출
+            for (Element element : doc.select("p, h1, h2, h3, h4, h5, h6, pre, code, ul, ol, li")) {
+                String text = element.text().trim();
+                if (!text.isEmpty()) {
+                    cleanContent.append("\n").append(text);
+                }
+            }
+
+            return cleanContent.toString().trim()
+                    .replaceAll("\n{3,}", "\n\n")
+                    .replaceAll("\\s{2,}", " ");
+        } catch (Exception e) {
+            log.error("컨텐츠 정제 중 오류: {}", e.getMessage());
+            return contentElement.getText();
+        }
+    }
+
+
+
 
     @Override
     public String getCompanyName() {

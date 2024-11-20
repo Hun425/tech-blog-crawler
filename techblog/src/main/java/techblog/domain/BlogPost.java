@@ -3,6 +3,7 @@ package techblog.domain;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.elasticsearch.annotations.Document;
@@ -16,6 +17,7 @@ import java.util.Set;
 @Getter
 @Entity
 @Table(name = "blog_posts")
+@NoArgsConstructor
 public class BlogPost {
 
     @Id
